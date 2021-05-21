@@ -25,7 +25,6 @@ export class ClientDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @ArrayMinSize(1)
   @Type(() => ClassWithIdDto)
   grantors: ClassWithIdDto[];
 }

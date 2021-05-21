@@ -6,8 +6,8 @@ import * as mysql from 'mysql2';
     password: process.env.PASSWORD,
   });
 
-  connection.execute(`drop database if exists monsreal_test`);
-  connection.execute(`create database monsreal_test`);
+  connection.execute(`drop database if exists ${process.env.DB}`);
+  connection.execute(`create database ${process.env.DB}`);
 
   connection.end();
 })();

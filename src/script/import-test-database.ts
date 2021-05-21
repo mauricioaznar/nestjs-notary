@@ -5,7 +5,7 @@ import * as Importer from 'mysql-import';
     host: 'localhost',
     user: process.env.USER,
     password: process.env.PASSWORD,
-    database: 'monsreal_test',
+    database: process.env.DB,
   });
 
   importer.onProgress((progress) => {
