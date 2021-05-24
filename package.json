@@ -14,7 +14,7 @@
     "migration:run:dev": "env-cmd -f .env.develop npm run typeorm -- migration:run",
     "dev": "env-cmd -f ./.env.develop nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "env-cmd -f .env node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test:setup": "env-cmd -f .env.test ts-node src/script/create-test-database.ts && env-cmd -f .env.test ts-node src/script/import-test-database.ts",
     "migration:run:test": "env-cmd -f .env.test npm run typeorm -- migration:run",
