@@ -51,39 +51,10 @@ export class DocumentDto {
   @IsString()
   tome: string;
 
-  @IsString()
-  property: string;
-
-  @IsString()
-  marginalNotes: string;
-
-  @IsString()
-  electronicFolio: string;
-
   @IsNumber()
   @Min(-1)
   @Max(1)
   moneyLaundering: string;
-
-  @IsNumber()
-  @Min(-1)
-  @Max(1)
-  personalities: string;
-
-  @IsNumber()
-  @Min(-1)
-  @Max(1)
-  documentRegistry: string;
-
-  @IsNumber()
-  @Min(-1)
-  @Max(1)
-  publicRegistryPatent: string;
-
-  @IsNumber()
-  @Min(-1)
-  @Max(1)
-  identifications: string;
 
   @IsDateString()
   @IsOptional()
@@ -96,10 +67,6 @@ export class DocumentDto {
   @IsNumber()
   @Validate(IsEntityActiveConstraint, [DocumentType])
   documentTypeId: number;
-
-  @IsString()
-  @IsOptional()
-  documentTypeOther: string;
 
   @IsNumber()
   @Validate(IsEntityActiveConstraint, [Clients])
@@ -152,9 +119,4 @@ export class DocumentDto {
   @ValidateNested({ each: true })
   @Type(() => DocumentCommentDto)
   documentComments: DocumentCommentDto[];
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => DocumentPropertyDto)
-  documentProperties: DocumentPropertyDto[];
 }

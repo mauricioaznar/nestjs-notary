@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DocumentDto } from './dto/document-dto';
 import { Pagination } from '../common/pagination/pagination';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
-import { Brackets, Connection, Repository } from 'typeorm';
+import { Brackets, Connection } from 'typeorm';
 import { BaseService } from '../common/service/base-service';
 import { Documents } from '../../entity/Documents';
 import { DocumentOperation } from '../../entity/DocumentOperation';
@@ -11,7 +11,6 @@ import { DocumentGroup } from '../../entity/DocumentGroup';
 import { DocumentAttachment } from '../../entity/DocumentAttachment';
 import { DocumentUser } from '../../entity/DocumentUser';
 import { DocumentComment } from '../../entity/DocumentComment';
-import { DocumentProperty } from '../../entity/DocumentProperty';
 import * as moment from 'moment';
 import { Users } from '../../entity/Users';
 import { DocumentPaginationQueryParamsDto } from './dto/document-pagination-query-params-dto';
@@ -69,7 +68,6 @@ export class DocumentsService extends BaseService {
         closureUsers,
         documentAttachments,
         documentComments,
-        documentProperties,
         ...document
       } = documentDto;
       const createResult = await this.createEntity(
@@ -115,13 +113,6 @@ export class DocumentsService extends BaseService {
         })),
       );
       await this.createEntities(
-        manager.getRepository(DocumentProperty),
-        documentProperties.map((documentProperty) => ({
-          ...documentProperty,
-          documentId: createId,
-        })),
-      );
-      await this.createEntities(
         manager.getRepository(DocumentAttachment),
         documentAttachments.map((da) => ({
           ...da,
@@ -144,7 +135,6 @@ export class DocumentsService extends BaseService {
         entryUsers,
         closureUsers,
         documentComments,
-        documentProperties,
         ...document
       } = documentDto;
 
@@ -202,12 +192,6 @@ export class DocumentsService extends BaseService {
         { columnName: 'documentId', id },
         updatedDocument.documentComments,
         documentComments,
-      );
-      await this.updateEntitiesByOneToMany(
-        manager.getRepository(DocumentProperty),
-        { columnName: 'documentId', id },
-        updatedDocument.documentProperties,
-        documentProperties,
       );
     });
     return await this.findOne(id);
@@ -339,11 +323,6 @@ export class DocumentsService extends BaseService {
         'documents_closureUsers.active = 1 AND documents_closureUsers.closure_lawyer = 1',
       )
       .leftJoinAndSelect(
-        'documents.documentProperties',
-        'properties',
-        'properties.active = 1',
-      )
-      .leftJoinAndSelect(
         'documents.documentComments',
         'comments',
         'comments.active = 1',
@@ -412,13 +391,6 @@ export class DocumentsService extends BaseService {
         manager.getRepository(DocumentComment),
         { columnName: 'documentId', id },
         document.documentComments,
-        [],
-      );
-
-      await this.updateEntitiesByOneToMany(
-        manager.getRepository(DocumentProperty),
-        { columnName: 'documentId', id },
-        document.documentProperties,
         [],
       );
 

@@ -10,11 +10,9 @@ import {
 } from 'typeorm';
 import { Appointments } from './Appointments';
 import { DocumentComment } from './DocumentComment';
-import { DocumentRecord } from './DocumentRecord';
 import { DocumentUser } from './DocumentUser';
 import { Groups } from './Groups';
 import { UserGroup } from './UserGroup';
-import { UserNotification } from './UserNotification';
 import { Roles } from './Roles';
 import { Activities } from './Activities';
 import { BaseCustomEntity } from './helpers/BaseCustomEntity';
@@ -56,9 +54,6 @@ export class Users extends BaseCustomEntity {
   @OneToMany(() => DocumentComment, (documentComment) => documentComment.user)
   documentComments: DocumentComment[];
 
-  @OneToMany(() => DocumentRecord, (documentRecord) => documentRecord.user)
-  documentRecords: DocumentRecord[];
-
   @OneToMany(() => DocumentUser, (documentUser) => documentUser.user)
   documentUsers: DocumentUser[];
 
@@ -78,12 +73,6 @@ export class Users extends BaseCustomEntity {
 
   @OneToMany(() => UserGroup, (userGroup) => userGroup.user)
   userGroups: UserGroup[];
-
-  @OneToMany(
-    () => UserNotification,
-    (userNotification) => userNotification.user,
-  )
-  userNotifications: UserNotification[];
 
   @ManyToOne(() => Roles, (roles) => roles.users, {
     onDelete: 'NO ACTION',

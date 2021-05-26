@@ -13,8 +13,6 @@ export const cleanDocuments = async (connection: Connection) => {
   await connection.execute(`ALTER TABLE document_grantor AUTO_INCREMENT = 1`);
   await connection.execute(`delete from document_operation where id > 0`);
   await connection.execute(`ALTER TABLE document_operation AUTO_INCREMENT = 1`);
-  await connection.execute(`delete from document_property where id > 0`);
-  await connection.execute(`ALTER TABLE document_property AUTO_INCREMENT = 1`);
   await connection.execute(`delete from document_user where id > 0`);
   await connection.execute(`ALTER TABLE document_user AUTO_INCREMENT = 1`);
   await connection.execute(`delete from documents where id > 0`);

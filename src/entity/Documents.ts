@@ -10,15 +10,10 @@ import {
 } from 'typeorm';
 import { DocumentAttachment } from './DocumentAttachment';
 import { DocumentComment } from './DocumentComment';
-import { DocumentField } from './DocumentField';
-import { DocumentLawyer } from './DocumentLawyer';
-import { DocumentProperty } from './DocumentProperty';
-import { DocumentRecord } from './DocumentRecord';
 import { DocumentUser } from './DocumentUser';
 import { Clients } from './Clients';
 import { DocumentStatus } from './DocumentStatus';
 import { DocumentType } from './DocumentType';
-import { UserNotification } from './UserNotification';
 import { Operations } from './Operations';
 import { Grantors } from './Grantors';
 import { Groups } from './Groups';
@@ -34,29 +29,8 @@ export class Documents extends BaseCustomEntity {
   @Column('varchar', { name: 'folio', length: 255 })
   folio: string;
 
-  @Column('varchar', { name: 'electronic_folio', length: 255 })
-  electronicFolio: string;
-
   @Column('varchar', { name: 'tome', length: 255 })
   tome: string;
-
-  @Column('varchar', { name: 'property', length: 255 })
-  property: string;
-
-  @Column('smallint', { name: 'identifications', default: () => "'0'" })
-  identifications: number;
-
-  @Column('smallint', { name: 'public_registry_patent', default: () => "'0'" })
-  publicRegistryPatent: number;
-
-  @Column('smallint', { name: 'document_registry', default: () => "'0'" })
-  documentRegistry: number;
-
-  @Column('smallint', { name: 'personalities', default: () => "'0'" })
-  personalities: number;
-
-  @Column('varchar', { name: 'marginal_notes', length: 255 })
-  marginalNotes: string;
 
   @Column('date', { name: 'public_registry_entry_date', nullable: true })
   publicRegistryEntryDate: string | null;
@@ -76,9 +50,6 @@ export class Documents extends BaseCustomEntity {
   @Column('varchar', { name: 'file_number', length: 255 })
   fileNumber: string;
 
-  @Column('varchar', { name: 'document_type_other', length: 255 })
-  documentTypeOther: string;
-
   @Column('int', { name: 'document_type_id', nullable: true, unsigned: true })
   documentTypeId: number | null;
 
@@ -93,12 +64,6 @@ export class Documents extends BaseCustomEntity {
     (documentComment) => documentComment.document,
   )
   documentComments: DocumentComment[];
-
-  @OneToMany(() => DocumentField, (documentField) => documentField.document)
-  documentFields: DocumentField[];
-
-  @OneToMany(() => DocumentLawyer, (documentLawyer) => documentLawyer.document)
-  documentLawyers: DocumentLawyer[];
 
   @ManyToMany(() => Operations)
   @JoinTable({
@@ -190,15 +155,6 @@ export class Documents extends BaseCustomEntity {
   })
   groups: Groups[];
 
-  @OneToMany(
-    () => DocumentProperty,
-    (documentProperty) => documentProperty.document,
-  )
-  documentProperties: DocumentProperty[];
-
-  @OneToMany(() => DocumentRecord, (documentRecord) => documentRecord.document)
-  documentRecords: DocumentRecord[];
-
   @OneToMany(() => DocumentUser, (documentUser) => documentUser.document)
   documentUsers: DocumentUser[];
 
@@ -223,10 +179,4 @@ export class Documents extends BaseCustomEntity {
   })
   @JoinColumn([{ name: 'document_type_id', referencedColumnName: 'id' }])
   documentType: DocumentType;
-
-  @OneToMany(
-    () => UserNotification,
-    (userNotification) => userNotification.document,
-  )
-  userNotifications: UserNotification[];
 }

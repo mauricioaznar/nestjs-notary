@@ -23,14 +23,7 @@ const documentProperties = {
   publicRegistryEntryDate: '2020-01-02',
   publicRegistryExitDate: '2020-01-03',
   fileNumber: '1',
-  property: 'this is a property',
-  marginalNotes: 'marginal notes',
-  electronicFolio: 'electronic folio',
   moneyLaundering: 0,
-  personalities: 1,
-  documentRegistry: 1,
-  publicRegistryPatent: 1,
-  identifications: 1,
   documentStatusId: pendingStatus.id,
   clientId: client1.id,
   operations: [operation1],
@@ -42,7 +35,6 @@ const documentProperties = {
   documentTypeId: documentType1.id,
   documentAttachments: [{ attachmentId: attachment1.id, attachmentStatus: 0 }],
   documentComments: [{ comment: 'this is a comment' }],
-  documentProperties: [{ property: 'property 1', electronicFolio: 23 }],
 };
 
 describe('Documents', () => {
@@ -292,7 +284,7 @@ describe('Documents', () => {
       expect(response.body.date).toEqual('2021-02-01');
       expect(response.body.tome).toEqual('2-1');
       expect(response.body.fileNumber).toEqual('1');
-      expect(response.body.grantors).toEqual(
+      expect(response.body.operations).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: operation1.id }),
         ]),
@@ -300,14 +292,7 @@ describe('Documents', () => {
       expect(response.body.grantors).toEqual(
         expect.arrayContaining([expect.objectContaining({ id: grantor1.id })]),
       );
-      expect(response.body.property).toEqual('this is a property');
-      expect(response.body.marginalNotes).toEqual('marginal notes');
-      expect(response.body.electronicFolio).toEqual('electronic folio');
       expect(response.body.moneyLaundering).toEqual(0);
-      expect(response.body.personalities).toEqual(1);
-      expect(response.body.documentRegistry).toEqual(1);
-      expect(response.body.publicRegistryPatent).toEqual(1);
-      expect(response.body.identifications).toEqual(1);
       expect(response.body.documentStatusId).toEqual(pendingStatus.id);
       expect(response.body.clientId).toEqual(client1.id);
       expect(response.body.documentTypeId).toEqual(documentType1.id);
@@ -322,14 +307,6 @@ describe('Documents', () => {
       expect(response.body.documentComments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ comment: 'this is a comment' }),
-        ]),
-      );
-      expect(response.body.documentProperties).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            property: 'property 1',
-            electronicFolio: 23,
-          }),
         ]),
       );
       expect(response.body.attachments).toEqual(
@@ -591,14 +568,7 @@ describe('Documents', () => {
           fileNumber: '2',
           publicRegistryEntryDate: '2020-01-02',
           publicRegistryExitDate: '2020-01-03',
-          property: 'property 2',
-          marginalNotes: 'marginal notes 2',
-          electronicFolio: 'electronic folio 2',
           moneyLaundering: 1,
-          personalities: 0,
-          documentRegistry: 0,
-          publicRegistryPatent: 0,
-          identifications: 0,
           documentStatusId: registryStatus.id,
           clientId: client2.id,
           operations: [operation2],
@@ -612,7 +582,6 @@ describe('Documents', () => {
             { attachmentId: attachment2.id, attachmentStatus: 1 },
           ],
           documentComments: [{ comment: 'this is a comment 2' }],
-          documentProperties: [{ property: 'property 2', electronicFolio: 24 }],
         });
 
       expect(response.body).toHaveProperty('id');
@@ -624,20 +593,13 @@ describe('Documents', () => {
           expect.objectContaining({ id: operation2.id }),
         ]),
       );
-      expect(response.body.property).toEqual('property 2');
       expect(response.body.folio).toEqual('8');
       expect(response.body.date).toEqual('2022-04-01');
       expect(response.body.tome).toEqual('3-9');
       expect(response.body.publicRegistryEntryDate).toEqual('2020-01-02');
       expect(response.body.publicRegistryExitDate).toEqual('2020-01-03');
       expect(response.body.fileNumber).toEqual('2');
-      expect(response.body.marginalNotes).toEqual('marginal notes 2');
-      expect(response.body.electronicFolio).toEqual('electronic folio 2');
       expect(response.body.moneyLaundering).toEqual(1);
-      expect(response.body.personalities).toEqual(0);
-      expect(response.body.documentRegistry).toEqual(0);
-      expect(response.body.publicRegistryPatent).toEqual(0);
-      expect(response.body.identifications).toEqual(0);
       expect(response.body.documentStatusId).toEqual(registryStatus.id);
       expect(response.body.clientId).toEqual(client2.id);
       expect(response.body.documentTypeId).toEqual(documentType2.id);
@@ -652,14 +614,6 @@ describe('Documents', () => {
       expect(response.body.documentComments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ comment: 'this is a comment 2' }),
-        ]),
-      );
-      expect(response.body.documentProperties).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            property: 'property 2',
-            electronicFolio: 24,
-          }),
         ]),
       );
       expect(response.body.attachments).toEqual(
@@ -808,14 +762,6 @@ describe('Documents', () => {
       );
 
       expect(areDocumentCommentsActive).toBe(false);
-
-      const areDocumentPropertiesActive = await areRelationsActiveMysql(
-        connection,
-        'document_property',
-        documentOne.documentProperties,
-      );
-
-      expect(areDocumentPropertiesActive).toBe(false);
     });
 
     test('forbids to remove a document without a valid token', async () => {
