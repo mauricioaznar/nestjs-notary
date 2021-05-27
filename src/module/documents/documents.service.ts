@@ -110,6 +110,7 @@ export class DocumentsService extends BaseService {
         documentComments.map((documentComment) => ({
           documentId: createId,
           comment: documentComment.comment,
+          userId: (this.request.user as Users).id,
         })),
       );
       await this.createEntities(
@@ -125,6 +126,7 @@ export class DocumentsService extends BaseService {
   }
 
   async update(id: number, documentDto: DocumentDto) {
+    console.log(this.request.user);
     await this._connection.transaction(async (manager) => {
       const {
         operations,
@@ -191,7 +193,12 @@ export class DocumentsService extends BaseService {
         manager.getRepository(DocumentComment),
         { columnName: 'documentId', id },
         updatedDocument.documentComments,
-        documentComments,
+        documentComments.map((documentComment) => {
+          return {
+            ...documentComment,
+            userId: (this.request.user as Users).id,
+          };
+        }),
       );
     });
     return await this.findOne(id);
@@ -229,11 +236,22 @@ export class DocumentsService extends BaseService {
         'documentTypes',
         'documentTypes.active = 1',
       )
+      .leftJoinAndSelect(
+        'documents.documentComments',
+        'comments',
+        'comments.active = 1',
+      )
+      .leftJoinAndSelect('comments.user', 'users', 'users.active = 1')
       .leftJoinAndSelect('documents.client', 'client', 'client.active = 1')
       .leftJoinAndSelect(
         'documents.groups',
         'groups',
         'documents_groups.active = 1',
+      )
+      .leftJoinAndSelect(
+        'documents.documentAttachments',
+        'documentAttachments',
+        'documentAttachments.active = 1',
       )
       .andWhere(
         new Brackets((qb) => {
