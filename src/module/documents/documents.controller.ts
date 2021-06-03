@@ -19,6 +19,7 @@ import { DocumentPaginationQueryParamsDto } from './dto/document-pagination-quer
 import { ActivitiesService } from '../activities/activities.service';
 import { ActivityDto } from '../activities/dto/activity.dto';
 import * as moment from 'moment';
+import { DocumentCommentDto } from './dto/document-comment-dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -95,6 +96,22 @@ export class DocumentsController {
         user,
         document,
       ),
+    };
+  }
+
+  @Post('/documentComment')
+  async createDocumentComment(@Body() documentCommentDto: DocumentCommentDto) {
+    if (!documentCommentDto.documentId) {
+      throw new BadRequestException('Document id is missing');
+    }
+    const document = await this.documentsService.createDocumentComment(
+      documentCommentDto,
+    );
+    if (!document) {
+      throw new NotFoundException();
+    }
+    return {
+      document,
     };
   }
 

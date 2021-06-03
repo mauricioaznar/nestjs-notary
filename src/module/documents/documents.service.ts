@@ -16,6 +16,7 @@ import { Users } from '../../entity/Users';
 import { DocumentPaginationQueryParamsDto } from './dto/document-pagination-query-params-dto';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { DocumentCommentDto } from './dto/document-comment-dto';
 
 @Injectable()
 export class DocumentsService extends BaseService {
@@ -423,5 +424,9 @@ export class DocumentsService extends BaseService {
         .execute();
     });
     return document;
+  }
+
+  async createDocumentComment(documentCommentDto: DocumentCommentDto) {
+    return [];
   }
 }

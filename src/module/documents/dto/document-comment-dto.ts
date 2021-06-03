@@ -5,6 +5,10 @@ export class DocumentCommentDto {
   @IsOptional()
   id: number;
 
+  @IsNumber()
+  @IsOptional()
+  documentId: number;
+
   @IsString()
   comment: number;
 }
