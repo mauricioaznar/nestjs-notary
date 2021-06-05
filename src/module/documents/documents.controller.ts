@@ -99,22 +99,6 @@ export class DocumentsController {
     };
   }
 
-  @Post('/documentComment')
-  async createDocumentComment(@Body() documentCommentDto: DocumentCommentDto) {
-    if (!documentCommentDto.documentId) {
-      throw new BadRequestException('Document id is missing');
-    }
-    const document = await this.documentsService.createDocumentComment(
-      documentCommentDto,
-    );
-    if (!document) {
-      throw new NotFoundException();
-    }
-    return {
-      document,
-    };
-  }
-
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -168,5 +152,50 @@ export class DocumentsController {
       ),
     );
     return newDocument;
+  }
+
+  // todo testing
+  @Post('documentComments/:documentId')
+  async createDocumentComment(
+    @Body() documentCommentDto: DocumentCommentDto,
+    @User() user,
+  ) {
+    if (!documentCommentDto.documentId) {
+      throw new BadRequestException('Document id is missing');
+    }
+    const document = await this.documentsService.createDocumentComment(
+      documentCommentDto,
+      user.id,
+    );
+    if (!document) {
+      throw new NotFoundException();
+    }
+    return {
+      document,
+    };
+  }
+
+  // todo testing
+  @Get('documentComments/:documentId')
+  async getDocumentComments(@Param('documentId') documentId: string) {
+    return await this.documentsService.findComments(+documentId);
+  }
+
+  // todo testing
+  @Delete('documentComments/:documentId/:commentId')
+  async deleteDocumentComment(
+    @Param('documentId') documentId: string,
+    @Param('commentId') commentId: string,
+  ) {
+    return [];
+  }
+
+  // todo testing
+  @Patch('documentComments/:documentId/:commentId')
+  async patchDocumentComment(
+    @Param('documentId') documentId: string,
+    @Param('commentId') commentId: string,
+  ) {
+    return [];
   }
 }

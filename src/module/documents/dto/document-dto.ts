@@ -14,8 +14,6 @@ import {
 import { Type } from 'class-transformer';
 import { ClassWithIdDto } from '../../common/dto/class-with-id-dto';
 import { DocumentAttachmentDto } from './document-attachment-dto';
-import { DocumentCommentDto } from './document-comment-dto';
-import { DocumentPropertyDto } from './document-property-dto';
 import { AreDocumentAttachmentsValidConstraint } from '../validator/are-document-attachments-valid';
 import { AreOperationsValidConstraint } from '../validator/are-document-operations-valid';
 import { IsEntityActiveConstraint } from '../../common/validator/is-entity-active-constraint';
@@ -114,9 +112,4 @@ export class DocumentDto {
   @Validate(AreDocumentAttachmentsValidConstraint)
   @Type(() => DocumentAttachmentDto)
   documentAttachments: DocumentAttachmentDto[];
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => DocumentCommentDto)
-  documentComments: DocumentCommentDto[];
 }

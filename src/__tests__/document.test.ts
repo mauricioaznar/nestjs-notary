@@ -34,7 +34,6 @@ const documentProperties = {
   closureUsers: [secretaryUser],
   documentTypeId: documentType1.id,
   documentAttachments: [{ attachmentId: attachment1.id, attachmentStatus: 0 }],
-  documentComments: [{ comment: 'this is a comment' }],
 };
 
 describe('Documents', () => {
@@ -302,11 +301,6 @@ describe('Documents', () => {
             attachmentId: attachment1.id,
             attachmentStatus: 0,
           }),
-        ]),
-      );
-      expect(response.body.documentComments).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ comment: 'this is a comment' }),
         ]),
       );
       expect(response.body.attachments).toEqual(
@@ -581,7 +575,6 @@ describe('Documents', () => {
           documentAttachments: [
             { attachmentId: attachment2.id, attachmentStatus: 1 },
           ],
-          documentComments: [{ comment: 'this is a comment 2' }],
         });
 
       expect(response.body).toHaveProperty('id');
@@ -609,11 +602,6 @@ describe('Documents', () => {
             attachmentId: attachment2.id,
             attachmentStatus: 1,
           }),
-        ]),
-      );
-      expect(response.body.documentComments).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ comment: 'this is a comment 2' }),
         ]),
       );
       expect(response.body.attachments).toEqual(

@@ -68,7 +68,6 @@ export class DocumentsService extends BaseService {
         entryUsers,
         closureUsers,
         documentAttachments,
-        documentComments,
         ...document
       } = documentDto;
       const createResult = await this.createEntity(
@@ -106,14 +105,14 @@ export class DocumentsService extends BaseService {
           entryLayer: 0,
         })),
       );
-      await this.createEntities(
-        manager.getRepository(DocumentComment),
-        documentComments.map((documentComment) => ({
-          documentId: createId,
-          comment: documentComment.comment,
-          userId: (this.request.user as Users).id,
-        })),
-      );
+      // await this.createEntities(
+      //   manager.getRepository(DocumentComment),
+      //   documentComments.map((documentComment) => ({
+      //     documentId: createId,
+      //     comment: documentComment.comment,
+      //     userId: (this.request.user as Users).id,
+      //   })),
+      // );
       await this.createEntities(
         manager.getRepository(DocumentAttachment),
         documentAttachments.map((da) => ({
@@ -127,7 +126,6 @@ export class DocumentsService extends BaseService {
   }
 
   async update(id: number, documentDto: DocumentDto) {
-    console.log(this.request.user);
     await this._connection.transaction(async (manager) => {
       const {
         operations,
@@ -137,7 +135,6 @@ export class DocumentsService extends BaseService {
         documentAttachments,
         entryUsers,
         closureUsers,
-        documentComments,
         ...document
       } = documentDto;
 
@@ -190,17 +187,17 @@ export class DocumentsService extends BaseService {
         closureUsers,
         { closureLawyer: 1, entryLawyer: 0 },
       );
-      await this.updateEntitiesByOneToMany(
-        manager.getRepository(DocumentComment),
-        { columnName: 'documentId', id },
-        updatedDocument.documentComments,
-        documentComments.map((documentComment) => {
-          return {
-            ...documentComment,
-            userId: (this.request.user as Users).id,
-          };
-        }),
-      );
+      // await this.updateEntitiesByOneToMany(
+      //   manager.getRepository(DocumentComment),
+      //   { columnName: 'documentId', id },
+      //   updatedDocument.documentComments,
+      //   documentComments.map((documentComment) => {
+      //     return {
+      //       ...documentComment,
+      //       userId: (this.request.user as Users).id,
+      //     };
+      //   }),
+      // );
     });
     return await this.findOne(id);
   }
@@ -341,11 +338,6 @@ export class DocumentsService extends BaseService {
         'closureUsers',
         'documents_closureUsers.active = 1 AND documents_closureUsers.closure_lawyer = 1',
       )
-      .leftJoinAndSelect(
-        'documents.documentComments',
-        'comments',
-        'comments.active = 1',
-      )
       .leftJoinAndSelect('documents.client', 'clients', 'clients.active = 1')
       .where('documents.active = 1')
       .andWhere('documents.id = :id', { id })
@@ -426,7 +418,23 @@ export class DocumentsService extends BaseService {
     return document;
   }
 
-  async createDocumentComment(documentCommentDto: DocumentCommentDto) {
-    return [];
+  async findComments(documentId: number) {
+    return this._connection
+      .getRepository(DocumentComment)
+      .createQueryBuilder('comments')
+      .leftJoinAndSelect('comments.user', 'users', 'users.active = 1')
+      .where('comments.documentId = :documentId', { documentId })
+      .andWhere('comments.active = 1')
+      .getMany();
+  }
+
+  async createDocumentComment(
+    documentCommentDto: DocumentCommentDto,
+    userId: number,
+  ) {
+    return await this.createEntity(
+      this._connection.getRepository(DocumentComment),
+      { ...documentCommentDto, userId },
+    );
   }
 }
