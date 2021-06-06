@@ -187,7 +187,7 @@ export class DocumentsController {
     @Param('documentId') documentId: string,
     @Param('commentId') commentId: string,
   ) {
-    return [];
+    return this.documentsService.deleteDocumentComment(+commentId);
   }
 
   // todo testing
@@ -195,7 +195,11 @@ export class DocumentsController {
   async patchDocumentComment(
     @Param('documentId') documentId: string,
     @Param('commentId') commentId: string,
+    @Body() documentCommentDto: DocumentCommentDto,
   ) {
-    return [];
+    return await this.documentsService.patchDocumentComment(
+      documentCommentDto,
+      +commentId,
+    );
   }
 }

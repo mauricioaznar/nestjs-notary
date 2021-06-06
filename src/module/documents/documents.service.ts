@@ -437,4 +437,26 @@ export class DocumentsService extends BaseService {
       { ...documentCommentDto, userId },
     );
   }
+
+  async patchDocumentComment(
+    documentCommentDto: DocumentCommentDto,
+    documentCommentId: number,
+  ) {
+    return await this.updateEntity(
+      this._connection.getRepository(DocumentComment),
+      { ...documentCommentDto },
+      documentCommentId,
+    );
+  }
+  async deleteDocumentComment(documentCommentId: number) {
+    return await this._connection
+      .getRepository(DocumentComment)
+      .createQueryBuilder()
+      .update()
+      .set({
+        active: -1,
+      })
+      .where('id = :id', { id: documentCommentId })
+      .execute();
+  }
 }
