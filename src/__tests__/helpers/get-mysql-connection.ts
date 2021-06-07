@@ -6,5 +6,5 @@ export async function getMysqlConnection() {
     password: process.env.PASSWORD,
     database: process.env.DB,
   });
-  return connection
+  return connection;
 }
