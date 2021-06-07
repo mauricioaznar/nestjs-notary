@@ -329,6 +329,11 @@ export class DocumentsService extends BaseService {
         'documents_attachments.active = 1',
       )
       .leftJoinAndSelect(
+        'documents.documentComments',
+        'comments',
+        'comments.active = 1',
+      )
+      .leftJoinAndSelect(
         'documents.entryUsers',
         'entryUsers',
         'documents_entryUsers.active = 1 AND documents_entryUsers.entry_lawyer = 1',
@@ -432,24 +437,39 @@ export class DocumentsService extends BaseService {
     documentCommentDto: DocumentCommentDto,
     userId: number,
   ) {
-    return await this.createEntity(
+    const createResult = await this.createEntity(
       this._connection.getRepository(DocumentComment),
       { ...documentCommentDto, userId },
     );
+
+    const createId = createResult.identifiers[0].id;
+    return this.getDocumentComment(createId);
   }
 
   async patchDocumentComment(
     documentCommentDto: DocumentCommentDto,
     documentCommentId: number,
   ) {
-    return await this.updateEntity(
+    await this.updateEntity(
       this._connection.getRepository(DocumentComment),
       { ...documentCommentDto },
       documentCommentId,
     );
+    return await this.getDocumentComment(documentCommentId);
   }
-  async deleteDocumentComment(documentCommentId: number) {
+
+  async getDocumentComment(documentCommentId: number) {
     return await this._connection
+      .getRepository(DocumentComment)
+      .createQueryBuilder()
+      .where('id = :id', { id: documentCommentId })
+      .andWhere('active = 1')
+      .getOne();
+  }
+
+  async deleteDocumentComment(documentCommentId: number) {
+    const documentComment = await this.getDocumentComment(documentCommentId);
+    await this._connection
       .getRepository(DocumentComment)
       .createQueryBuilder()
       .update()
@@ -458,5 +478,6 @@ export class DocumentsService extends BaseService {
       })
       .where('id = :id', { id: documentCommentId })
       .execute();
+    return documentComment;
   }
 }

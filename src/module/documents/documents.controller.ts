@@ -154,7 +154,6 @@ export class DocumentsController {
     return newDocument;
   }
 
-  // todo testing
   @Post('documentComments/:documentId')
   async createDocumentComment(
     @Body() documentCommentDto: DocumentCommentDto,
@@ -163,16 +162,11 @@ export class DocumentsController {
     if (!documentCommentDto.documentId) {
       throw new BadRequestException('Document id is missing');
     }
-    const document = await this.documentsService.createDocumentComment(
+    const documentComment = await this.documentsService.createDocumentComment(
       documentCommentDto,
       user.id,
     );
-    if (!document) {
-      throw new NotFoundException();
-    }
-    return {
-      document,
-    };
+    return documentComment;
   }
 
   // todo testing
@@ -181,22 +175,49 @@ export class DocumentsController {
     return await this.documentsService.findComments(+documentId);
   }
 
+  @Get('documentComments/:documentId/:commentId')
+  async getDocumentComment(
+    @Param('documentId') documentId: string,
+    @Param('commentId') commentId: string,
+  ) {
+    const documentComment = await this.documentsService.getDocumentComment(
+      +commentId,
+    );
+    if (!documentComment) {
+      throw new NotFoundException();
+    }
+    return documentComment;
+  }
+
   // todo testing
   @Delete('documentComments/:documentId/:commentId')
   async deleteDocumentComment(
     @Param('documentId') documentId: string,
     @Param('commentId') commentId: string,
+    @User() user,
   ) {
+    const documentComment = await this.documentsService.getDocumentComment(
+      +commentId,
+    );
+    if (documentComment.userId !== user.id) {
+      throw new ForbiddenException();
+    }
     return this.documentsService.deleteDocumentComment(+commentId);
   }
 
-  // todo testing
   @Patch('documentComments/:documentId/:commentId')
   async patchDocumentComment(
     @Param('documentId') documentId: string,
     @Param('commentId') commentId: string,
     @Body() documentCommentDto: DocumentCommentDto,
+    @User() user,
   ) {
+    const documentComment = await this.documentsService.getDocumentComment(
+      +commentId,
+    );
+    if (documentComment.userId !== user.id) {
+      throw new ForbiddenException();
+    }
     return await this.documentsService.patchDocumentComment(
       documentCommentDto,
       +commentId,

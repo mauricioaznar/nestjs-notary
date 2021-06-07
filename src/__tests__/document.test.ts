@@ -3,11 +3,12 @@ import { setupApp } from './factories/setup-app';
 import * as request from 'supertest';
 import {
   getAdminToken,
+  getLawyerToken,
   getSecretaryToken,
   getUser1Token,
 } from './factories/get-token';
-import { grantor1, grantor2, grantor3 } from './objects/grantors';
-import { adminUser, lawyerUser, secretaryUser } from './objects/users';
+import { grantor1, grantor2 } from './objects/grantors';
+import { adminUser, secretaryUser } from './objects/users';
 import { client1, client2 } from './objects/clients';
 import { pendingStatus, registryStatus } from './objects/documentStatuses';
 import { operation1, operation2 } from './objects/operations';
@@ -775,6 +776,307 @@ describe('Documents', () => {
       );
 
       expect(response.status).toBe(401);
+    });
+  });
+
+  describe('document comments', () => {
+    it('posts a comment', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 13,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.comment).toBe('asdfa');
+      expect(postComment.body.userId).toBe(adminUser.id);
+    });
+
+    it('finds a comment', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 14,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.id).toBeDefined();
+
+      const getComment = await request(app.getHttpServer())
+        .get(`/documents/documentComments/${documentId}/${postComment.body.id}`)
+        .set(await getAdminToken(app))
+        .send();
+
+      expect(getComment.status).toBe(200);
+      expect(getComment.body.id).toBe(postComment.body.id);
+    });
+
+    it('patches a comment', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 15,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.id).toBeDefined();
+
+      const commentId = postComment.body.id;
+
+      const patchComment = await request(app.getHttpServer())
+        .patch(`/documents/documentComments/${documentId}/${commentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          comment: 'aaa aaa',
+          documentId,
+        });
+
+      expect(patchComment.status).toBe(200);
+      expect(patchComment.body.id).toBe(postComment.body.id);
+      expect(patchComment.body.comment).toBe('aaa aaa');
+    });
+
+    it('forbids to patch when user is not the same as the one who published it', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 16,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.id).toBeDefined();
+
+      const commentId = postComment.body.id;
+
+      const patchComment = await request(app.getHttpServer())
+        .patch(`/documents/documentComments/${documentId}/${commentId}`)
+        .set(await getLawyerToken(app))
+        .send({
+          comment: 'aaa aaa',
+          documentId,
+        });
+
+      expect(patchComment.status).toBe(403);
+    });
+
+    it('get comments', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 17,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.id).toBeDefined();
+
+      const getComments = await request(app.getHttpServer())
+        .get(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send();
+
+      expect(getComments.status).toBe(200);
+      expect(getComments.body.length).toBe(1);
+    });
+
+    it('deletes a comment', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 18,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.id).toBeDefined();
+
+      const commentId = postComment.body.id;
+
+      const deleteComment = await request(app.getHttpServer())
+        .delete(`/documents/documentComments/${documentId}/${commentId}`)
+        .set(await getAdminToken(app))
+        .send();
+
+      expect(deleteComment.status).toBe(200);
+
+      const getComment = await request(app.getHttpServer())
+        .get(`/documents/documentComments/${documentId}/${commentId}`)
+        .set(await getAdminToken(app))
+        .send();
+
+      expect(getComment.status).toBe(404);
+    });
+
+    it('forbids to patch when user is not the same as the one who published it', async () => {
+      const patchDocumentProperties = {
+        ...documentProperties,
+        folio: 19,
+        date: '2025-01-01',
+        tome: '3-5',
+        groups: [group1],
+      };
+
+      const postResponseDocument = await request(app.getHttpServer())
+        .post(`/documents`)
+        .set(await getAdminToken(app))
+        .send({
+          ...patchDocumentProperties,
+        });
+
+      expect(postResponseDocument.status).toBe(201);
+
+      const document = postResponseDocument.body;
+      const documentId = document.id;
+
+      const postComment = await request(app.getHttpServer())
+        .post(`/documents/documentComments/${documentId}`)
+        .set(await getAdminToken(app))
+        .send({
+          documentId: documentId,
+          comment: 'asdfa',
+        });
+
+      expect(postComment.status).toBe(201);
+      expect(postComment.body.id).toBeDefined();
+
+      const commentId = postComment.body.id;
+
+      const deleteComment = await request(app.getHttpServer())
+        .delete(`/documents/documentComments/${documentId}/${commentId}`)
+        .set(await getLawyerToken(app))
+        .send();
+
+      expect(deleteComment.status).toBe(403);
     });
   });
 });
