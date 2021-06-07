@@ -20,6 +20,7 @@ import { ActivitiesService } from '../activities/activities.service';
 import { ActivityDto } from '../activities/dto/activity.dto';
 import * as moment from 'moment';
 import { DocumentCommentDto } from './dto/document-comment-dto';
+import { DocumentComment } from '../../entity/DocumentComment';
 
 @Controller('documents')
 export class DocumentsController {
@@ -28,7 +29,7 @@ export class DocumentsController {
     private readonly activitiesService: ActivitiesService,
   ) {}
 
-  getActivityDescription(document) {
+  getDocumentActivityDescription(document) {
     return (
       'Documento: ' +
       document.tome +
@@ -52,7 +53,7 @@ export class DocumentsController {
     const document = await this.documentsService.create(documentDto);
     await this.activitiesService.registerCreate(
       new ActivityDto(
-        this.getActivityDescription(document),
+        this.getDocumentActivityDescription(document),
         'documents',
         document,
       ),
@@ -125,7 +126,7 @@ export class DocumentsController {
     const newDocument = await this.documentsService.update(+id, documentDto);
     await this.activitiesService.registerUpdate(
       new ActivityDto(
-        this.getActivityDescription(newDocument),
+        this.getDocumentActivityDescription(newDocument),
         'documents',
         newDocument,
       ),
@@ -146,7 +147,7 @@ export class DocumentsController {
     const newDocument = await this.documentsService.remove(+id);
     await this.activitiesService.registerDelete(
       new ActivityDto(
-        this.getActivityDescription(newDocument),
+        this.getDocumentActivityDescription(newDocument),
         'documents',
         newDocument,
       ),
@@ -154,8 +155,13 @@ export class DocumentsController {
     return newDocument;
   }
 
+  getDocumentCommentActivityDescription(documentComment: DocumentComment) {
+    return 'Comentario: ' + documentComment.comment;
+  }
+
   @Post('documentComments/:documentId')
   async createDocumentComment(
+    @Param('documentId') documentId: string,
     @Body() documentCommentDto: DocumentCommentDto,
     @User() user,
   ) {
@@ -166,10 +172,17 @@ export class DocumentsController {
       documentCommentDto,
       user.id,
     );
+    const document = await this.findOne(documentId, user);
+    await this.activitiesService.registerCreate(
+      new ActivityDto(
+        this.getDocumentCommentActivityDescription(documentComment),
+        'documents',
+        document,
+      ),
+    );
     return documentComment;
   }
 
-  // todo testing
   @Get('documentComments/:documentId')
   async getDocumentComments(@Param('documentId') documentId: string) {
     return await this.documentsService.findComments(+documentId);
@@ -202,7 +215,18 @@ export class DocumentsController {
     if (documentComment.userId !== user.id) {
       throw new ForbiddenException();
     }
-    return this.documentsService.deleteDocumentComment(+commentId);
+    const deletedDocumentComment = await this.documentsService.deleteDocumentComment(
+      +commentId,
+    );
+    const document = await this.findOne(documentId, user);
+    await this.activitiesService.registerUpdate(
+      new ActivityDto(
+        this.getDocumentCommentActivityDescription(documentComment),
+        'documents',
+        document,
+      ),
+    );
+    return deletedDocumentComment;
   }
 
   @Patch('documentComments/:documentId/:commentId')
@@ -218,9 +242,18 @@ export class DocumentsController {
     if (documentComment.userId !== user.id) {
       throw new ForbiddenException();
     }
-    return await this.documentsService.patchDocumentComment(
+    const patchedDocumentComment = await this.documentsService.patchDocumentComment(
       documentCommentDto,
       +commentId,
     );
+    const document = await this.findOne(documentId, user);
+    await this.activitiesService.registerUpdate(
+      new ActivityDto(
+        this.getDocumentCommentActivityDescription(patchedDocumentComment),
+        'documents',
+        document,
+      ),
+    );
+    return patchedDocumentComment;
   }
 }
