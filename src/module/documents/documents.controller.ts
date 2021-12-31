@@ -21,6 +21,7 @@ import { ActivityDto } from '../activities/dto/activity.dto';
 import * as moment from 'moment';
 import { DocumentCommentDto } from './dto/document-comment-dto';
 import { DocumentComment } from '../../entity/DocumentComment';
+import { DocumentUniqueQueryParamsDto } from './dto/document-unique-query-params-dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -45,7 +46,7 @@ export class DocumentsController {
     const isDateFolioTomeValid = await this.documentsService.isDocumentFolioTomeDateValid(
       documentDto.folio,
       documentDto.tome,
-      documentDto.date,
+      documentDto.year,
     );
     if (!isDateFolioTomeValid) {
       throw new BadRequestException('folio, tome and date are already in use');
@@ -85,6 +86,20 @@ export class DocumentsController {
     };
   }
 
+  @Get('documentUnique')
+  async documentUnique(
+    @Query() documentUniqueQueryParamsDto: DocumentUniqueQueryParamsDto,
+  ) {
+    return this.documentsService.isDocumentFolioTomeDateValid(
+      Number(documentUniqueQueryParamsDto.folio),
+      documentUniqueQueryParamsDto.tome,
+      Number(documentUniqueQueryParamsDto.year),
+      documentUniqueQueryParamsDto.id
+        ? Number(documentUniqueQueryParamsDto.id)
+        : undefined,
+    );
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string, @User() user) {
     const document = await this.documentsService.findOne(+id);
@@ -117,7 +132,7 @@ export class DocumentsController {
     const isDateFolioTomeValid = await this.documentsService.isDocumentFolioTomeDateValid(
       documentDto.folio,
       documentDto.tome,
-      documentDto.date,
+      documentDto.year,
       +id,
     );
     if (!isDateFolioTomeValid) {

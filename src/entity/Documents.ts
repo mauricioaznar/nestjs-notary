@@ -38,8 +38,8 @@ export class Documents extends BaseCustomEntity {
   @Column('date', { name: 'public_registry_exit_date', nullable: true })
   publicRegistryExitDate: string | null;
 
-  @Column('date', { name: 'date', nullable: true })
-  date: string | null;
+  @Column('int', { name: 'year', nullable: true, unsigned: true })
+  year: number | null;
 
   @Column('date', { name: 'money_laundering_expiration_date', nullable: true })
   moneyLaunderingExpirationDate: string | null;

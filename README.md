@@ -5,18 +5,18 @@
 
 ## Currently working
 
-* change date for year in documents
-* validate document uniqueness on the front end
 * add margin to generate link to resset password
 * Return to log in after user has changed its password. Improve feedback.
+
 * imrpove list layout
 * Imrpove form layouts
+
 * File upload acts
-* File upload certified copy
 * cron job to delete files after certain period of time
-* * change date for year in documents
 
 ## Done
 
+* validate document uniqueness on the front end
+* change date for year in documents
 * Update roadmap to english
 * add feedback when form is not valid (copy from other vue projects)

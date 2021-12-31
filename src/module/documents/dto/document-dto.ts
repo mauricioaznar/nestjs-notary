@@ -11,6 +11,7 @@ import {
   Validate,
   ValidateNested,
 } from 'class-validator';
+import * as moment from 'moment';
 import { Type } from 'class-transformer';
 import { ClassWithIdDto } from '../../common/dto/class-with-id-dto';
 import { DocumentAttachmentDto } from './document-attachment-dto';
@@ -33,8 +34,10 @@ export class DocumentDto {
   @Max(400)
   folio: number;
 
-  @IsDateString()
-  date: string;
+  @IsNumber()
+  @Min(2000)
+  @Max(moment().add(1, 'year').year())
+  year: number;
 
   @IsDateString()
   publicRegistryEntryDate: string;

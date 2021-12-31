@@ -73,7 +73,7 @@ describe('Documents', () => {
         .query({
           page: 1,
           itemsPerPage: 10,
-          year: '2020',
+          year: 2020,
         })
         .set(await getSecretaryToken(app));
 
@@ -111,7 +111,7 @@ describe('Documents', () => {
     const document1Properties = {
       ...documentProperties,
       folio: 1,
-      date: '2020-01-01',
+      year: 2020,
       tome: '1',
     };
 
@@ -130,7 +130,7 @@ describe('Documents', () => {
     it('doesnt register a document when folio, and tome are the same', async () => {
       const newFolioDateTome = {
         folio: 2,
-        date: '2020-01-01',
+        year: 2020,
         tome: '1-2',
       };
       const postResponse = await request(app.getHttpServer())
@@ -165,7 +165,7 @@ describe('Documents', () => {
         .send({
           ...document1Properties,
           folio: 2,
-          date: '2020-01-01',
+          year: 2020,
           tome: '1-3',
           documentTypeId: documentType1.id,
           attachments: [attachment2],
@@ -187,7 +187,7 @@ describe('Documents', () => {
         .send({
           ...document1Properties,
           folio: 2,
-          date: '2020-01-01',
+          year: 2020,
           tome: '1-3',
           documentTypeId: documentType1.id,
           attachments: [attachment1],
@@ -217,7 +217,7 @@ describe('Documents', () => {
         .send({
           ...document1Properties,
           folio: 2,
-          date: '2020-01-01',
+          year: 2020,
           tome: '1-4',
           documentTypeId: documentType1.id,
           operations: [operation2],
@@ -236,31 +236,13 @@ describe('Documents', () => {
 
       expect(response.status).toBe(401);
     });
-
-    for (const [key, value] of Object.entries(document1Properties)) {
-      if (document1Properties.hasOwnProperty(key)) {
-        const copyProperties = { ...document1Properties, tome: '1-4' };
-        delete copyProperties[key];
-
-        it(`rejects when ${key} is missing`, async () => {
-          const response = await request(app.getHttpServer())
-            .post('/documents')
-            .send({
-              ...copyProperties,
-            })
-            .set(await getAdminToken(app));
-
-          expect(response.status).toBe(400);
-        });
-      }
-    }
   });
 
   describe('gets document', () => {
     const document1Properties = {
       ...documentProperties,
       folio: 3,
-      date: '2021-02-01',
+      year: 2021,
       tome: '2-1',
     };
     let documentOne;
@@ -281,7 +263,7 @@ describe('Documents', () => {
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.folio).toEqual('3');
-      expect(response.body.date).toEqual('2021-02-01');
+      expect(response.body.year).toEqual(2021);
       expect(response.body.tome).toEqual('2-1');
       expect(response.body.fileNumber).toEqual('1');
       expect(response.body.operations).toEqual(
@@ -333,7 +315,7 @@ describe('Documents', () => {
     const document1Properties = {
       ...documentProperties,
       folio: 4,
-      date: '2022-03-01',
+      year: 2022,
       tome: '3-1',
     };
     let documentOne;
@@ -408,7 +390,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 11,
-        date: '2025-01-01',
+        year: 2019,
         tome: '3-3',
         groups: [group2],
       };
@@ -438,7 +420,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 12,
-        date: '2025-01-01',
+        year: 2019,
         tome: '3-5',
         groups: [group1],
       };
@@ -468,7 +450,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 20,
-        date: '2025-01-01',
+        year: 2019,
         tome: '3-6',
         groups: [group1],
       };
@@ -498,7 +480,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 7,
-        date: '2026-01-01',
+        year: 2018,
         tome: '3-7',
       };
 
@@ -527,7 +509,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 5,
-        date: '2022-01-01',
+        year: 2018,
         tome: '3-8',
       };
 
@@ -558,7 +540,7 @@ describe('Documents', () => {
         .set(await getAdminToken(app))
         .send({
           folio: 8,
-          date: '2022-04-01',
+          year: 2017,
           tome: '3-9',
           fileNumber: '2',
           publicRegistryEntryDate: '2020-01-02',
@@ -588,7 +570,7 @@ describe('Documents', () => {
         ]),
       );
       expect(response.body.folio).toEqual('8');
-      expect(response.body.date).toEqual('2022-04-01');
+      expect(response.body.year).toEqual(2017);
       expect(response.body.tome).toEqual('3-9');
       expect(response.body.publicRegistryEntryDate).toEqual('2020-01-02');
       expect(response.body.publicRegistryExitDate).toEqual('2020-01-03');
@@ -620,31 +602,13 @@ describe('Documents', () => {
       );
       expect(response.status).toBe(200);
     });
-
-    for (const [key, value] of Object.entries(document1Properties)) {
-      if (document1Properties.hasOwnProperty(key)) {
-        const copyProperties = { ...document1Properties };
-        delete copyProperties[key];
-
-        it(`rejects when ${key} is missing`, async () => {
-          const response = await request(app.getHttpServer())
-            .patch(`/documents/${documentOne.id}`)
-            .send({
-              ...copyProperties,
-            })
-            .set(await getAdminToken(app));
-
-          expect(response.status).toBe(400);
-        });
-      }
-    }
   });
 
   describe('removes document', () => {
     const document1Properties = {
       ...documentProperties,
       folio: 6,
-      date: '2023-03-01',
+      year: 2018,
       tome: '4-1',
     };
     let documentOne;
@@ -757,7 +721,7 @@ describe('Documents', () => {
       const document2Properties = {
         ...documentProperties,
         folio: 7,
-        date: '2023-03-01',
+        year: 2018,
         tome: '4-2',
       };
       const postResponse = await request(app.getHttpServer())
@@ -784,7 +748,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 13,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };
@@ -818,7 +782,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 14,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };
@@ -859,7 +823,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 15,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };
@@ -906,7 +870,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 16,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };
@@ -951,7 +915,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 17,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };
@@ -992,7 +956,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 18,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };
@@ -1041,7 +1005,7 @@ describe('Documents', () => {
       const patchDocumentProperties = {
         ...documentProperties,
         folio: 19,
-        date: '2025-01-01',
+        year: 2017,
         tome: '3-5',
         groups: [group1],
       };

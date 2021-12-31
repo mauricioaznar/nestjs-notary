@@ -27,17 +27,16 @@ export class DocumentsService extends BaseService {
   async isDocumentFolioTomeDateValid(
     folio: number,
     tome: string,
-    date: string,
+    year: number,
     documentId?: number,
   ) {
-    const year = moment(date).format('YYYY');
     const query = this._connection
       .getRepository(Documents)
       .createQueryBuilder('documents')
       .where('documents.active = 1')
       .andWhere('documents.folio = :folio', { folio })
       .andWhere('documents.tome = :tome', { tome })
-      .andWhere('YEAR(documents.date) = :year', { year });
+      .andWhere('documents.year = :year', { year });
     if (documentId) {
       query.andWhere('documents.id != :id', { id: documentId });
     }
@@ -273,7 +272,7 @@ export class DocumentsService extends BaseService {
             });
         }),
       )
-      .andWhere('YEAR(documents.date) = :year', {
+      .andWhere('documents.year = :year', {
         year: `${year}`,
       })
       .take(options.take)
