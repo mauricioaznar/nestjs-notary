@@ -20,6 +20,7 @@ import { Groups } from './Groups';
 import { Attachments } from './Attachments';
 import { Users } from './Users';
 import { BaseCustomEntity } from './helpers/BaseCustomEntity';
+import { DocumentFile } from './DocumentFile';
 
 @Index('documents_document_type_id_foreign', ['documentTypeId'], {})
 @Index('documents_document_status_id_foreign', ['documentStatusId'], {})
@@ -64,6 +65,9 @@ export class Documents extends BaseCustomEntity {
     (documentComment) => documentComment.document,
   )
   documentComments: DocumentComment[];
+
+  @OneToMany(() => DocumentFile, (df) => df.document)
+  documentFiles: DocumentFile[];
 
   @ManyToMany(() => Operations)
   @JoinTable({

@@ -5,12 +5,12 @@
 
 ## Currently working
 
-* File upload
-* cron job to delete files after certain period of time
 * file upload testing
 
 ## Done
 
+* cron job to delete files after certain period of time
+* File upload
 * Improve list layout
 * Improve form layouts
 * add margin to generate link to resset password

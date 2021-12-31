@@ -335,6 +335,7 @@ describe('Documents', () => {
         .set(await getAdminToken(app))
         .send({
           ...document1Properties,
+          documentFiles: [],
         });
 
       expect(response.status).toBe(200);
@@ -347,6 +348,7 @@ describe('Documents', () => {
         .send({
           ...document1Properties,
           folio: 401,
+          documentFiles: [],
         });
 
       expect(response.status).toBe(400);
@@ -359,6 +361,7 @@ describe('Documents', () => {
         .send({
           ...document1Properties,
           folio: 0,
+          documentFiles: [],
         });
 
       expect(response.status).toBe(400);
@@ -371,6 +374,7 @@ describe('Documents', () => {
         .send({
           ...document1Properties,
           tome: '3/1',
+          documentFiles: [],
         });
 
       expect(response.status).toBe(400);
@@ -393,6 +397,7 @@ describe('Documents', () => {
         year: 2019,
         tome: '3-3',
         groups: [group2],
+        documentFiles: [],
       };
 
       const postResponse = await request(app.getHttpServer())
@@ -423,6 +428,7 @@ describe('Documents', () => {
         year: 2019,
         tome: '3-5',
         groups: [group1],
+        documentFiles: [],
       };
 
       const postResponse = await request(app.getHttpServer())
@@ -453,6 +459,7 @@ describe('Documents', () => {
         year: 2019,
         tome: '3-6',
         groups: [group1],
+        documentFiles: [],
       };
 
       const postResponse = await request(app.getHttpServer())
@@ -500,6 +507,7 @@ describe('Documents', () => {
         .set(await getAdminToken(app))
         .send({
           ...patchDocumentProperties,
+          documentFiles: [],
         });
 
       expect(response.status).toBe(200);
@@ -527,6 +535,7 @@ describe('Documents', () => {
         .set(await getAdminToken(app))
         .send({
           ...patchDocumentProperties,
+          documentFiles: [],
         });
 
       expect(response.status).toBe(400);
@@ -555,6 +564,7 @@ describe('Documents', () => {
           entryUsers: [secretaryUser],
           closureUsers: [adminUser],
           documentTypeId: documentType2.id,
+          documentFiles: [],
           documentAttachments: [
             { attachmentId: attachment2.id, attachmentStatus: 1 },
           ],

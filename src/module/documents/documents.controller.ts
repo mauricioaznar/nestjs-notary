@@ -10,6 +10,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
 import { DocumentDto } from './dto/document-dto';
@@ -22,12 +25,18 @@ import * as moment from 'moment';
 import { DocumentCommentDto } from './dto/document-comment-dto';
 import { DocumentComment } from '../../entity/DocumentComment';
 import { DocumentUniqueQueryParamsDto } from './dto/document-unique-query-params-dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { FilesService } from '../files/files.service';
+import UpdateDocumentDto from './dto/update-document-dto';
+import { MemoryTokenService } from '../memory-token/memory-token.service';
 
 @Controller('documents')
 export class DocumentsController {
   constructor(
     private readonly documentsService: DocumentsService,
     private readonly activitiesService: ActivitiesService,
+    private readonly filesService: FilesService,
+    private readonly memoryTokenService: MemoryTokenService,
   ) {}
 
   getDocumentActivityDescription(document) {
@@ -101,13 +110,22 @@ export class DocumentsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @User() user) {
+  async findOne(@Param('id') id: string, @User() user, @Req() req) {
     const document = await this.documentsService.findOne(+id);
     if (!document) {
       throw new NotFoundException();
     }
+
+    const baseUrl = this.filesService.getFileBaseEndpointUrl(req);
+    const token = await this.memoryTokenService.getToken(user.id);
     return {
       ...document,
+      documentFiles: document.documentFiles.map((df) => {
+        return {
+          ...df,
+          url: `${baseUrl}/${token}/${df.fileName}`,
+        };
+      }),
       editable: await this.documentsService.isUserAuthorizedToEditDocument(
         user,
         document,
@@ -115,10 +133,37 @@ export class DocumentsController {
     };
   }
 
+  @Post('files/:id')
+  @UseInterceptors(
+    FilesInterceptor('files', null, {
+      limits: {
+        fieldNameSize: 1000000,
+        fieldSize: 1000000,
+      },
+    }),
+  )
+  async addFiles(
+    @Param('id') id: string,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    files.forEach((p) => {
+      if (!p.originalname.match(/\.(pdf)$/)) {
+        throw new BadRequestException(`Incorrect file format. PDF only.`);
+      }
+    });
+    try {
+      const savedFiles = await this.filesService.createFiles(files);
+      await this.documentsService.saveFiles(id, savedFiles);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+    return 1;
+  }
+
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() documentDto: DocumentDto,
+    @Body() updateDocumentDto: UpdateDocumentDto,
     @User() user: Users,
   ) {
     const document = await this.documentsService.findOne(+id);
@@ -130,15 +175,22 @@ export class DocumentsController {
       throw new ForbiddenException();
     }
     const isDateFolioTomeValid = await this.documentsService.isDocumentFolioTomeDateValid(
-      documentDto.folio,
-      documentDto.tome,
-      documentDto.year,
+      updateDocumentDto.folio,
+      updateDocumentDto.tome,
+      updateDocumentDto.year,
       +id,
     );
     if (!isDateFolioTomeValid) {
       throw new BadRequestException('folio, tome and date are already in use');
     }
-    const newDocument = await this.documentsService.update(+id, documentDto);
+    const newDocument = await this.documentsService.update(
+      +id,
+      updateDocumentDto,
+    );
+    const toDeleteDocumentFiles = document.documentFiles.filter((dc) => {
+      return !newDocument.documentFiles.find((dCer) => dCer.id === dc.id);
+    });
+    await this.filesService.deleteFilesIfExists(toDeleteDocumentFiles);
     await this.activitiesService.registerUpdate(
       new ActivityDto(
         this.getDocumentActivityDescription(newDocument),
@@ -187,7 +239,7 @@ export class DocumentsController {
       documentCommentDto,
       user.id,
     );
-    const document = await this.findOne(documentId, user);
+    const document = await this.documentsService.findOne(+documentId);
     await this.activitiesService.registerCreate(
       new ActivityDto(
         this.getDocumentCommentActivityDescription(documentComment),
@@ -233,7 +285,7 @@ export class DocumentsController {
     const deletedDocumentComment = await this.documentsService.deleteDocumentComment(
       +commentId,
     );
-    const document = await this.findOne(documentId, user);
+    const document = await this.documentsService.findOne(+documentId);
     await this.activitiesService.registerUpdate(
       new ActivityDto(
         this.getDocumentCommentActivityDescription(documentComment),
@@ -261,7 +313,7 @@ export class DocumentsController {
       documentCommentDto,
       +commentId,
     );
-    const document = await this.findOne(documentId, user);
+    const document = await this.documentsService.findOne(+documentId);
     await this.activitiesService.registerUpdate(
       new ActivityDto(
         this.getDocumentCommentActivityDescription(patchedDocumentComment),

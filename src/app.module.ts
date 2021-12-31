@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ConnectionOptions } from 'typeorm';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -21,6 +20,8 @@ import { IsEntityActiveConstraint } from './module/common/validator/is-entity-ac
 import { AreEntitiesActiveConstraint } from './module/common/validator/are-entities-active-constraint';
 import { ActivitiesModule } from './module/activities/activities.module';
 import { AuthGateway } from './module/common/gateway/AuthGateway';
+import { FilesModule } from './module/files/files.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 export const typeOrmCliOptions = {
   migrations: ['src/migration/*{.ts,.js}'],
@@ -47,6 +48,10 @@ if (!process.env.JWT_SECRET_KEY) {
 
 if (!process.env.RESET_SECRET_KEY) {
   throw new Error('process.env.RESET_SECRET_KEY is not defined');
+}
+
+if (!process.env.FILE_SECRET_KEY) {
+  throw new Error('process.env.FILE_SECRET_KEY is not defined');
 }
 
 const ENV = process.env.NODE_ENV;
@@ -76,6 +81,7 @@ export const connectionOptions: ConnectionOptions = {
         };
       },
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     AppointmentsModule,
@@ -84,6 +90,7 @@ export const connectionOptions: ConnectionOptions = {
     GroupsModule,
     DocumentsModule,
     ActivitiesModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

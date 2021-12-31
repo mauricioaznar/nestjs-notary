@@ -17,6 +17,8 @@ import { DocumentPaginationQueryParamsDto } from './dto/document-pagination-quer
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { DocumentCommentDto } from './dto/document-comment-dto';
+import { DocumentFile } from '../../entity/DocumentFile';
+import UpdateDocumentDto from './dto/update-document-dto';
 
 @Injectable()
 export class DocumentsService extends BaseService {
@@ -124,13 +126,14 @@ export class DocumentsService extends BaseService {
     return this.findOne(id);
   }
 
-  async update(id: number, documentDto: DocumentDto) {
+  async update(id: number, documentDto: UpdateDocumentDto) {
     await this._connection.transaction(async (manager) => {
       const {
         operations,
         grantors,
         groups,
         attachments,
+        documentFiles,
         documentAttachments,
         entryUsers,
         closureUsers,
@@ -185,6 +188,12 @@ export class DocumentsService extends BaseService {
         updatedDocument.closureUsers,
         closureUsers,
         { closureLawyer: 1, entryLawyer: 0 },
+      );
+      await this.updateEntitiesByOneToMany(
+        manager.getRepository(DocumentFile),
+        { columnName: 'documentId', id },
+        updatedDocument.documentFiles,
+        documentFiles,
       );
       // await this.updateEntitiesByOneToMany(
       //   manager.getRepository(DocumentComment),
@@ -342,6 +351,11 @@ export class DocumentsService extends BaseService {
         'closureUsers',
         'documents_closureUsers.active = 1 AND documents_closureUsers.closure_lawyer = 1',
       )
+      .leftJoinAndSelect(
+        'documents.documentFiles',
+        'documentFiles',
+        'documentFiles.active = 1',
+      )
       .leftJoinAndSelect('documents.client', 'clients', 'clients.active = 1')
       .where('documents.active = 1')
       .andWhere('documents.id = :id', { id })
@@ -420,6 +434,24 @@ export class DocumentsService extends BaseService {
         .execute();
     });
     return document;
+  }
+
+  async saveFiles(
+    id: string,
+    files: {
+      originalName: string;
+      fileName: string;
+    }[],
+  ) {
+    await this._connection.transaction(async (manager) => {
+      await this.createEntities(
+        manager.getRepository(DocumentFile),
+        files.map((da) => ({
+          ...da,
+          documentId: id,
+        })),
+      );
+    });
   }
 
   async findComments(documentId: number) {
