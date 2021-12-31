@@ -5,17 +5,18 @@
 
 ## Currently working
 
-* add margin to generate link to resset password
-* Return to log in after user has changed its password. Improve feedback.
-
-* imrpove list layout
-* Imrpove form layouts
-
-* File upload acts
+* File upload
 * cron job to delete files after certain period of time
+* file upload testing
 
 ## Done
 
+* Improve list layout
+* Improve form layouts
+* add margin to generate link to resset password
+* Return to log in after user has changed its password. Improve feedback.
+* cleanup
+  * delete dateFormat file
 * validate document uniqueness on the front end
 * change date for year in documents
 * Update roadmap to english
