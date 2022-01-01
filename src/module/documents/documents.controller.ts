@@ -154,10 +154,10 @@ export class DocumentsController {
     try {
       const savedFiles = await this.filesService.createFiles(files);
       await this.documentsService.saveFiles(id, savedFiles);
+      return savedFiles;
     } catch (e) {
       throw new BadRequestException(e);
     }
-    return 1;
   }
 
   @Patch(':id')

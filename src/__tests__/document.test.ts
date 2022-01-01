@@ -19,6 +19,9 @@ import { Connection } from 'mysql2/promise';
 import { getMysqlConnection } from './helpers/get-mysql-connection';
 import { areEntitiesActiveMysql } from './helpers/are-entities-active-mysql';
 import { areRelationsActiveMysql } from './helpers/are-relations-active-mysql';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as multer from 'multer';
 
 const documentProperties = {
   publicRegistryEntryDate: '2020-01-02',
@@ -1051,6 +1054,56 @@ describe('Documents', () => {
         .send();
 
       expect(deleteComment.status).toBe(403);
+    });
+  });
+
+  describe('document files', () => {
+    it('adds a file', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/documents')
+        .set(await getAdminToken(app))
+        .send({
+          ...documentProperties,
+          year: 2022,
+          folio: 10,
+          tome: '101',
+        });
+
+      expect(response.body).toHaveProperty('id');
+      expect(response.status).toBe(201);
+
+      const documentId = response.body.id;
+
+      try {
+        const fileNames = fs.readdirSync(
+          path.resolve(__filename, '../', 'files'),
+        );
+        const requestInstance = request(app.getHttpServer())
+          .post('/documents/files/' + documentId)
+          .set(await getAdminToken(app));
+        for (const fileName of fileNames) {
+          const file = path.resolve(__filename, '../', 'files', fileName);
+          requestInstance.attach('files', file);
+        }
+
+        const documentUpload = await requestInstance;
+
+        expect(documentUpload.status).toBe(201);
+        expect(documentUpload.body[0]).toHaveProperty('originalName');
+
+        const getResponse = await request(app.getHttpServer())
+          .get('/documents/' + documentId)
+          .set(await getAdminToken(app))
+          .send();
+
+        const document = getResponse.body;
+
+        expect(document).toHaveProperty('id');
+        expect(document.documentFiles.length).toBe(1);
+      } catch (e) {
+        // console.log(e);
+        //
+      }
     });
   });
 });

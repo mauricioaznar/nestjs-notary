@@ -1,6 +1,39 @@
 import { Connection } from 'mysql2/promise';
+import * as path from 'path';
+import * as fs from 'fs';
+import { BadRequestException } from '@nestjs/common';
+
+async function deleteFilesIfExists(files: { file_name: string }[]) {
+  try {
+    const promises = files.map(async (file) => {
+      const { file_name } = file;
+      const filePath = path.relative(process.cwd(), 'uploads/' + file_name);
+      const exists = await fs.promises.stat(filePath);
+      if (exists) {
+        await fs.promises.unlink(filePath);
+      }
+      return {
+        file_name,
+      };
+    });
+    return Promise.all(promises);
+  } catch (e) {
+    throw new BadRequestException(e);
+  }
+}
 
 export const cleanDocuments = async (connection: Connection) => {
+  const result = await connection.execute('select * from document_file');
+  if (Array.isArray(result[0])) {
+    const files = result[0].map((br) => {
+      return {
+        file_name: br.file_name,
+      };
+    });
+    await deleteFilesIfExists(files);
+  }
+  await connection.execute(`delete from document_file where id > 0`);
+  await connection.execute(`ALTER TABLE document_file AUTO_INCREMENT = 1`);
   await connection.execute(`delete from document_attachment where id > 0`);
   await connection.execute(
     `ALTER TABLE document_attachment AUTO_INCREMENT = 1`,
