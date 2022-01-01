@@ -5,10 +5,9 @@
 
 ## Currently working
 
-* file upload testing
-
 ## Done
 
+* file upload testing
 * cron job to delete files after certain period of time
 * File upload
 * Improve list layout

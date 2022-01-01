@@ -1074,36 +1074,71 @@ describe('Documents', () => {
 
       const documentId = response.body.id;
 
-      try {
-        const fileNames = fs.readdirSync(
-          path.resolve(__filename, '../', 'files'),
-        );
-        const requestInstance = request(app.getHttpServer())
-          .post('/documents/files/' + documentId)
-          .set(await getAdminToken(app));
-        for (const fileName of fileNames) {
-          const file = path.resolve(__filename, '../', 'files', fileName);
-          requestInstance.attach('files', file);
-        }
-
-        const documentUpload = await requestInstance;
-
-        expect(documentUpload.status).toBe(201);
-        expect(documentUpload.body[0]).toHaveProperty('originalName');
-
-        const getResponse = await request(app.getHttpServer())
-          .get('/documents/' + documentId)
-          .set(await getAdminToken(app))
-          .send();
-
-        const document = getResponse.body;
-
-        expect(document).toHaveProperty('id');
-        expect(document.documentFiles.length).toBe(1);
-      } catch (e) {
-        // console.log(e);
-        //
+      const fileNames = fs.readdirSync(
+        path.resolve(__filename, '../', 'files'),
+      );
+      const requestInstance = request(app.getHttpServer())
+        .post('/documents/files/' + documentId)
+        .set(await getAdminToken(app));
+      for (const fileName of fileNames) {
+        const file = path.resolve(__filename, '../', 'files', fileName);
+        requestInstance.attach('files', file);
       }
+
+      const documentUploadResponse = await requestInstance;
+
+      expect(documentUploadResponse.status).toBe(201);
+      expect(documentUploadResponse.body[0]).toHaveProperty('originalName');
+
+      const getResponse = await request(app.getHttpServer())
+        .get('/documents/' + documentId)
+        .set(await getAdminToken(app))
+        .send();
+
+      const document = getResponse.body;
+
+      expect(document.documentFiles.length).toEqual(1);
+    });
+
+    it('removes a file', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/documents')
+        .set(await getAdminToken(app))
+        .send({
+          ...documentProperties,
+          year: 2022,
+          folio: 10,
+          tome: '102',
+        });
+
+      const documentId = response.body.id;
+
+      const fileNames = fs.readdirSync(
+        path.resolve(__filename, '../', 'files'),
+      );
+      const requestUploadInstance = request(app.getHttpServer())
+        .post('/documents/files/' + documentId)
+        .set(await getAdminToken(app));
+      for (const fileName of fileNames) {
+        const file = path.resolve(__filename, '../', 'files', fileName);
+        requestUploadInstance.attach('files', file);
+      }
+
+      await requestUploadInstance;
+
+      const patchResponse = await request(app.getHttpServer())
+        .patch('/documents/' + documentId)
+        .set(await getAdminToken(app))
+        .send({
+          ...documentProperties,
+          year: 2022,
+          folio: 10,
+          tome: '102',
+          documentFiles: [],
+        });
+
+      expect(patchResponse.body).toHaveProperty('id');
+      expect(patchResponse.body.documentFiles.length).toEqual(0);
     });
   });
 });
