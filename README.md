@@ -5,15 +5,7 @@
 
 ## Currently working
 
-* reduce number of fields on documents
-  * money_laundering_expiration_date
-  * money_laundering
-  * file_number
-  * document_users
-
-  * public registry entry date
-  * public registry exit date
-  
+* add expected completion date
 
 
 
@@ -22,7 +14,13 @@
 
 ### < 03-01-2021
 
-
+* reduce number of fields on documents
+  * money_laundering_expiration_date
+  * money_laundering
+  * file_number
+  * document_users
+  * public registry entry date
+  * public registry exit date
 * remove comment button
 * min height horizontal stepper form
 
