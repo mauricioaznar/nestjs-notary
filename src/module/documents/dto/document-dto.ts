@@ -1,9 +1,6 @@
 import {
   IsArray,
-  IsDateString,
   IsNumber,
-  IsNumberString,
-  IsOptional,
   IsString,
   Matches,
   Max,
@@ -26,7 +23,6 @@ import { Operations } from '../../../entity/Operations';
 import { Grantors } from '../../../entity/Grantors';
 import { Groups } from '../../../entity/Groups';
 import { Attachments } from '../../../entity/Attachments';
-import { Users } from '../../../entity/Users';
 
 export class DocumentDto {
   @IsNumber()
@@ -39,27 +35,9 @@ export class DocumentDto {
   @Max(moment().add(1, 'year').year())
   year: number;
 
-  @IsDateString()
-  publicRegistryEntryDate: string;
-
-  @IsDateString()
-  publicRegistryExitDate: string;
-
-  @IsNumberString()
-  fileNumber: string;
-
   @Matches(/^[0-9]+([-][0-9]+)?$/)
   @IsString()
   tome: string;
-
-  @IsNumber()
-  @Min(-1)
-  @Max(1)
-  moneyLaundering: string;
-
-  @IsDateString()
-  @IsOptional()
-  moneyLaunderingExpirationDate: string | null;
 
   @IsNumber()
   @Validate(IsEntityActiveConstraint, [DocumentStatus])
@@ -97,18 +75,6 @@ export class DocumentDto {
   @Validate(AreEntitiesActiveConstraint, [Attachments])
   @Type(() => ClassWithIdDto)
   attachments: ClassWithIdDto[];
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Validate(AreEntitiesActiveConstraint, [Users])
-  @Type(() => ClassWithIdDto)
-  entryUsers: ClassWithIdDto[];
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Validate(AreEntitiesActiveConstraint, [Users])
-  @Type(() => ClassWithIdDto)
-  closureUsers: ClassWithIdDto[];
 
   @IsArray()
   @ValidateNested({ each: true })

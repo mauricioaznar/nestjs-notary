@@ -21,21 +21,15 @@ import { areEntitiesActiveMysql } from './helpers/are-entities-active-mysql';
 import { areRelationsActiveMysql } from './helpers/are-relations-active-mysql';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as multer from 'multer';
 
 const documentProperties = {
-  publicRegistryEntryDate: '2020-01-02',
-  publicRegistryExitDate: '2020-01-03',
   fileNumber: '1',
-  moneyLaundering: 0,
   documentStatusId: pendingStatus.id,
   clientId: client1.id,
   operations: [operation1],
   grantors: [grantor1],
   groups: [group1],
   attachments: [attachment1],
-  entryUsers: [adminUser],
-  closureUsers: [secretaryUser],
   documentTypeId: documentType1.id,
   documentAttachments: [{ attachmentId: attachment1.id, attachmentStatus: 0 }],
 };
@@ -268,7 +262,6 @@ describe('Documents', () => {
       expect(response.body.folio).toEqual('3');
       expect(response.body.year).toEqual(2021);
       expect(response.body.tome).toEqual('2-1');
-      expect(response.body.fileNumber).toEqual('1');
       expect(response.body.operations).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: operation1.id }),
@@ -277,7 +270,6 @@ describe('Documents', () => {
       expect(response.body.grantors).toEqual(
         expect.arrayContaining([expect.objectContaining({ id: grantor1.id })]),
       );
-      expect(response.body.moneyLaundering).toEqual(0);
       expect(response.body.documentStatusId).toEqual(pendingStatus.id);
       expect(response.body.clientId).toEqual(client1.id);
       expect(response.body.documentTypeId).toEqual(documentType1.id);
@@ -292,14 +284,6 @@ describe('Documents', () => {
       expect(response.body.attachments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: attachment1.id }),
-        ]),
-      );
-      expect(response.body.entryUsers).toEqual(
-        expect.arrayContaining([expect.objectContaining({ id: adminUser.id })]),
-      );
-      expect(response.body.closureUsers).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: secretaryUser.id }),
         ]),
       );
       expect(response.status).toBe(200);
@@ -554,18 +538,12 @@ describe('Documents', () => {
           folio: 8,
           year: 2017,
           tome: '3-9',
-          fileNumber: '2',
-          publicRegistryEntryDate: '2020-01-02',
-          publicRegistryExitDate: '2020-01-03',
-          moneyLaundering: 1,
           documentStatusId: registryStatus.id,
           clientId: client2.id,
           operations: [operation2],
           grantors: [grantor2],
           groups: [group2],
           attachments: [attachment2],
-          entryUsers: [secretaryUser],
-          closureUsers: [adminUser],
           documentTypeId: documentType2.id,
           documentFiles: [],
           documentAttachments: [
@@ -585,10 +563,6 @@ describe('Documents', () => {
       expect(response.body.folio).toEqual('8');
       expect(response.body.year).toEqual(2017);
       expect(response.body.tome).toEqual('3-9');
-      expect(response.body.publicRegistryEntryDate).toEqual('2020-01-02');
-      expect(response.body.publicRegistryExitDate).toEqual('2020-01-03');
-      expect(response.body.fileNumber).toEqual('2');
-      expect(response.body.moneyLaundering).toEqual(1);
       expect(response.body.documentStatusId).toEqual(registryStatus.id);
       expect(response.body.clientId).toEqual(client2.id);
       expect(response.body.documentTypeId).toEqual(documentType2.id);
@@ -604,14 +578,6 @@ describe('Documents', () => {
         expect.arrayContaining([
           expect.objectContaining({ id: attachment2.id }),
         ]),
-      );
-      expect(response.body.entryUsers).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: secretaryUser.id }),
-        ]),
-      );
-      expect(response.body.closureUsers).toEqual(
-        expect.arrayContaining([expect.objectContaining({ id: adminUser.id })]),
       );
       expect(response.status).toBe(200);
     });
@@ -692,34 +658,6 @@ describe('Documents', () => {
       );
 
       expect(areGroupsActive).toBe(false);
-
-      const areEntryUsersActive = await areEntitiesActiveMysql(
-        connection,
-        'document_user',
-        {
-          hostColumnName: 'document_id',
-          hostColumnId: documentOne.id,
-          inverseColumnName: 'user_id',
-          extraProperties: { entry_lawyer: 1, closure_lawyer: 0 },
-        },
-        documentOne.entryUsers,
-      );
-
-      expect(areEntryUsersActive).toBe(false);
-
-      const areClosureUsersActive = await areEntitiesActiveMysql(
-        connection,
-        'document_user',
-        {
-          hostColumnName: 'document_id',
-          hostColumnId: documentOne.id,
-          inverseColumnName: 'user_id',
-          extraProperties: { entry_lawyer: 0, closure_lawyer: 1 },
-        },
-        documentOne.closureUsers,
-      );
-
-      expect(areClosureUsersActive).toBe(false);
 
       const areDocumentCommentsActive = await areRelationsActiveMysql(
         connection,

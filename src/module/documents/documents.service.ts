@@ -9,9 +9,7 @@ import { DocumentOperation } from '../../entity/DocumentOperation';
 import { DocumentGrantor } from '../../entity/DocumentGrantor';
 import { DocumentGroup } from '../../entity/DocumentGroup';
 import { DocumentAttachment } from '../../entity/DocumentAttachment';
-import { DocumentUser } from '../../entity/DocumentUser';
 import { DocumentComment } from '../../entity/DocumentComment';
-import * as moment from 'moment';
 import { Users } from '../../entity/Users';
 import { DocumentPaginationQueryParamsDto } from './dto/document-pagination-query-params-dto';
 import { REQUEST } from '@nestjs/core';
@@ -66,8 +64,6 @@ export class DocumentsService extends BaseService {
         grantors,
         groups,
         attachments,
-        entryUsers,
-        closureUsers,
         documentAttachments,
         ...document
       } = documentDto;
@@ -87,24 +83,6 @@ export class DocumentsService extends BaseService {
       await this.createEntities(
         manager.getRepository(DocumentGroup),
         groups.map((g) => ({ groupId: g.id, documentId: createId })),
-      );
-      await this.createEntities(
-        manager.getRepository(DocumentUser),
-        entryUsers.map((u) => ({
-          userId: u.id,
-          documentId: createId,
-          entryLawyer: 1,
-          closureLawyer: 0,
-        })),
-      );
-      await this.createEntities(
-        manager.getRepository(DocumentUser),
-        closureUsers.map((u) => ({
-          userId: u.id,
-          documentId: createId,
-          closureLawyer: 1,
-          entryLayer: 0,
-        })),
       );
       // await this.createEntities(
       //   manager.getRepository(DocumentComment),
@@ -135,8 +113,6 @@ export class DocumentsService extends BaseService {
         attachments,
         documentFiles,
         documentAttachments,
-        entryUsers,
-        closureUsers,
         ...document
       } = documentDto;
 
@@ -172,22 +148,6 @@ export class DocumentsService extends BaseService {
         { columnName: 'documentId', id },
         updatedDocument.documentAttachments,
         documentAttachments,
-      );
-      await this.updateEntitiesByArrays(
-        manager.getRepository(DocumentUser),
-        { columnName: 'documentId', id },
-        { columnName: 'userId' },
-        updatedDocument.entryUsers,
-        entryUsers,
-        { entryLawyer: 1, closureLawyer: 0 },
-      );
-      await this.updateEntitiesByArrays(
-        manager.getRepository(DocumentUser),
-        { columnName: 'documentId', id },
-        { columnName: 'userId' },
-        updatedDocument.closureUsers,
-        closureUsers,
-        { closureLawyer: 1, entryLawyer: 0 },
       );
       await this.updateEntitiesByOneToMany(
         manager.getRepository(DocumentFile),
@@ -342,16 +302,6 @@ export class DocumentsService extends BaseService {
         'comments.active = 1',
       )
       .leftJoinAndSelect(
-        'documents.entryUsers',
-        'entryUsers',
-        'documents_entryUsers.active = 1 AND documents_entryUsers.entry_lawyer = 1',
-      )
-      .leftJoinAndSelect(
-        'documents.closureUsers',
-        'closureUsers',
-        'documents_closureUsers.active = 1 AND documents_closureUsers.closure_lawyer = 1',
-      )
-      .leftJoinAndSelect(
         'documents.documentFiles',
         'documentFiles',
         'documentFiles.active = 1',
@@ -396,24 +346,6 @@ export class DocumentsService extends BaseService {
         { columnName: 'groupId' },
         document.groups,
         [],
-      );
-
-      await this.updateEntitiesByArrays(
-        manager.getRepository(DocumentUser),
-        { columnName: 'documentId', id },
-        { columnName: 'userId' },
-        document.entryUsers,
-        [],
-        { entryLawyer: 1, closureLawyer: 0 },
-      );
-
-      await this.updateEntitiesByArrays(
-        manager.getRepository(DocumentUser),
-        { columnName: 'documentId', id },
-        { columnName: 'userId' },
-        document.closureUsers,
-        [],
-        { closureLawyer: 1, entryLawyer: 0 },
       );
 
       await this.updateEntitiesByOneToMany(

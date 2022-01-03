@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { Appointments } from './Appointments';
 import { DocumentComment } from './DocumentComment';
-import { DocumentUser } from './DocumentUser';
 import { Groups } from './Groups';
 import { UserGroup } from './UserGroup';
 import { Roles } from './Roles';
@@ -53,9 +52,6 @@ export class Users extends BaseCustomEntity {
 
   @OneToMany(() => DocumentComment, (documentComment) => documentComment.user)
   documentComments: DocumentComment[];
-
-  @OneToMany(() => DocumentUser, (documentUser) => documentUser.user)
-  documentUsers: DocumentUser[];
 
   @ManyToMany(() => Groups)
   @JoinTable({

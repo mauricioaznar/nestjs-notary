@@ -5,7 +5,28 @@
 
 ## Currently working
 
+* reduce number of fields on documents
+  * money_laundering_expiration_date
+  * money_laundering
+  * file_number
+  * document_users
+
+  * public registry entry date
+  * public registry exit date
+  
+
+
+
+
 ## Done
+
+### < 03-01-2021
+
+
+* remove comment button
+* min height horizontal stepper form
+
+### < 31-12-2021
 
 * file upload testing
 * cron job to delete files after certain period of time

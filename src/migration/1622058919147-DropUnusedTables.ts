@@ -44,7 +44,7 @@ export class DropUnusedTables1622058919147 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-        ALTER TABLE document_lawyer
+        ALTER TABLE document_lawyer 
             DROP FOREIGN KEY document_lawyer_lawyer_id_foreign
     `);
 

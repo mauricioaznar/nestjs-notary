@@ -39,7 +39,7 @@ export class DropUnusedDocumentColumns1622061450323
     `);
 
     await queryRunner.query(`
-        ALTER TABLE documents
+        ALTER TABLE documents 
             DROP document_registry
     `);
 

@@ -15,7 +15,6 @@ import { DocumentComment } from './entity/DocumentComment';
 import { DocumentGroup } from './entity/DocumentGroup';
 import { Groups } from './entity/Groups';
 import { UserGroup } from './entity/UserGroup';
-import { DocumentUser } from './entity/DocumentUser';
 import { DocumentStatus } from './entity/DocumentStatus';
 import { Rooms } from './entity/Rooms';
 import { Roles } from './entity/Roles';
@@ -38,7 +37,6 @@ export const Entities = [
   DocumentGroup,
   Groups,
   UserGroup,
-  DocumentUser,
   DocumentStatus,
   Rooms,
   Roles,

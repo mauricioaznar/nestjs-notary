@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { DocumentAttachment } from './DocumentAttachment';
 import { DocumentComment } from './DocumentComment';
-import { DocumentUser } from './DocumentUser';
 import { Clients } from './Clients';
 import { DocumentStatus } from './DocumentStatus';
 import { DocumentType } from './DocumentType';
@@ -18,7 +17,6 @@ import { Operations } from './Operations';
 import { Grantors } from './Grantors';
 import { Groups } from './Groups';
 import { Attachments } from './Attachments';
-import { Users } from './Users';
 import { BaseCustomEntity } from './helpers/BaseCustomEntity';
 import { DocumentFile } from './DocumentFile';
 
@@ -33,23 +31,8 @@ export class Documents extends BaseCustomEntity {
   @Column('varchar', { name: 'tome', length: 255 })
   tome: string;
 
-  @Column('date', { name: 'public_registry_entry_date', nullable: true })
-  publicRegistryEntryDate: string | null;
-
-  @Column('date', { name: 'public_registry_exit_date', nullable: true })
-  publicRegistryExitDate: string | null;
-
   @Column('int', { name: 'year', nullable: true, unsigned: true })
   year: number | null;
-
-  @Column('date', { name: 'money_laundering_expiration_date', nullable: true })
-  moneyLaunderingExpirationDate: string | null;
-
-  @Column('smallint', { name: 'money_laundering', default: () => "'-1'" })
-  moneyLaundering: number;
-
-  @Column('varchar', { name: 'file_number', length: 255 })
-  fileNumber: string;
 
   @Column('int', { name: 'document_type_id', nullable: true, unsigned: true })
   documentTypeId: number | null;
@@ -82,34 +65,6 @@ export class Documents extends BaseCustomEntity {
     },
   })
   operations: Operations[];
-
-  @ManyToMany(() => Users)
-  @JoinTable({
-    name: 'document_user', // table name for the junction table of this relation
-    joinColumn: {
-      name: 'document_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-  })
-  entryUsers: Users[];
-
-  @ManyToMany(() => Users)
-  @JoinTable({
-    name: 'document_user', // table name for the junction table of this relation
-    joinColumn: {
-      name: 'document_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-  })
-  closureUsers: Users[];
 
   @ManyToMany(() => Attachments)
   @JoinTable({
@@ -158,9 +113,6 @@ export class Documents extends BaseCustomEntity {
     },
   })
   groups: Groups[];
-
-  @OneToMany(() => DocumentUser, (documentUser) => documentUser.document)
-  documentUsers: DocumentUser[];
 
   @ManyToOne(() => Clients, (clients) => clients.documents, {
     onDelete: 'NO ACTION',
