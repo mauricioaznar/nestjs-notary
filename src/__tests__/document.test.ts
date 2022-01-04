@@ -31,6 +31,7 @@ const documentProperties = {
   groups: [group1],
   attachments: [attachment1],
   documentTypeId: documentType1.id,
+  expectedCompletionDate: '2020-01-01',
   documentAttachments: [{ attachmentId: attachment1.id, attachmentStatus: 0 }],
 };
 

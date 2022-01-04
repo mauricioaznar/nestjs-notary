@@ -43,6 +43,9 @@ export class Documents extends BaseCustomEntity {
   @Column('int', { name: 'client_id', nullable: true, unsigned: true })
   clientId: number | null;
 
+  @Column('date', { name: 'expected_completion_date', nullable: true })
+  expectedCompletionDate: string | null;
+
   @OneToMany(
     () => DocumentComment,
     (documentComment) => documentComment.document,

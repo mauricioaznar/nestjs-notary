@@ -1,6 +1,8 @@
 import {
   IsArray,
+  IsDateString,
   IsNumber,
+  IsOptional,
   IsString,
   Matches,
   Max,
@@ -50,6 +52,10 @@ export class DocumentDto {
   @IsNumber()
   @Validate(IsEntityActiveConstraint, [Clients])
   clientId: number;
+
+  @IsDateString()
+  @IsOptional()
+  expectedCompletionDate: string;
 
   @IsArray()
   @ValidateNested({ each: true })

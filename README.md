@@ -6,6 +6,9 @@
 ## Currently working
 
 * add expected completion date
+  * server
+  * ui column with avatar colored
+* update prod server 
 
 
 
