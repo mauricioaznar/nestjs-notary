@@ -5,10 +5,6 @@
 
 ## Currently working
 
-* add expected completion date
-  * server
-  * ui column with avatar colored
-* update prod server 
 
 
 
@@ -17,6 +13,10 @@
 
 ### < 03-01-2021
 
+* add expected completion date
+  * server
+  * ui column with avatar colored
+* update prod server
 * reduce number of fields on documents
   * money_laundering_expiration_date
   * money_laundering
